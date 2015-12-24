@@ -1,3 +1,6 @@
+var AutoLose =1;
+
+
 
 var square_width = 50 ;
 var current_rows = 0;
@@ -6,14 +9,14 @@ var current_diff = 0;
 
 var stare = [] ;
 var raport = [ 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7  ];
-var nrbmbvec = [];
+var bmb= [];
 var mat = [];
- 
-window.oncontextmenu = function ()
-{
-    
-    return false;     // cancel default menu
+var nrBombe = 0; 
+
+window.oncontextmenu = function (){return false; // cancel default menu  
 }
+
+
  
 function Generate()
 {
@@ -33,9 +36,12 @@ function Generate()
 	current_rows = _rows;
 	current_cols = _cols;
 	current_diff = _diff;
-	len = _rows * _cols;
 	
-	stare.length = _rows * _cols;
+	len = _rows * _cols;
+	bmb.length = 0;
+	
+	stare.length = _rows * _cols+1;
+	
 	
 	mat.length = _rows+2;
 	
@@ -45,7 +51,6 @@ function Generate()
 		mat[i].length = _cols+2;
 		for(var j=0;j<=_cols+1;++j)
 			mat[i][j] = 0;
-		
 	}
 	
 	
@@ -53,41 +58,45 @@ function Generate()
 	
 	_CreateBombs(_rows,_cols);
 	
+	for(var i=0; i < bmb.length; ++i)
+		document.getElementById("demo").innerHTML += "x:"+bmb[i][0]+"y:"+bmb[i][1]+" ";
+	
 	
 }
 function _CreateBombs(_rows,_cols)
 {
-	var nrBombe = Math.floor( (current_rows * current_cols) * raport[current_diff-1] ) ;
-	stare.length = current_cols * current_rows ;
-	nrbmbvec.length = stare.length;
+	nrBombe = Math.floor( (current_rows * current_cols) * raport[current_diff-1] ) ;
 	
-	for(var i=0;i < nrBombe ; ++i) 
+	for(var i=1;i <= nrBombe ; ++i) 
 		stare[i] = 1;
-	for(var i=nrBombe; i<= len; ++i) 
+	for(var i=nrBombe+1; i<stare.length; ++i) 
 		stare[i]=0;
 		
-	for(var i=stare.length ,j,tmp ; i>0; )
+	for(var i=stare.length ,j,tmp ; i>1; )
 	{
 	
-		j = Math.floor(Math.random() * i );
+		j = Math.floor(Math.random() * i )+1;
 		--i;
 		tmp = stare[i];
 		stare[i] = stare[j];
 		stare[j] = tmp;
 		
  	}
-	for(i=1;i<=len; ++i)
-		nrbmbvec[i] = 0;
+	
 	
 	var x,y;
 	
 	
 	for(var i=1;i<=_rows;++i)
 	{
+		x = (i-1)*_rows ;
 		for(var j=1;j<=_cols;++j)
 		{
-			x = (i-1)*_rows + j;
+			++x;
 			mat[i][j] = stare[x];
+			if( stare[x] == 1 ){
+				bmb.push( [i,j] );
+			}
 			
 		
 		}
@@ -107,20 +116,48 @@ function _CreateBombs(_rows,_cols)
 					
 				}
 			}
-			if(mat[i][j] > 0 )
+			if(mat[i][j] >= 0 )
 			mat[i][j] = - mat[i][j];
-			document.getElementById("demo").innerHTML += "mat["+i+"]["+j+"] = "+mat[i][j]+"    ";
+			
 		}
 	}
+	for(var i=1;i<=_rows;++i)
+	
+		for(var j=1;j<=_cols;++j)
+			document.getElementById("demo").innerHTML += "mat["+i+"]["+j+"] = "+mat[i][j]+"    ";
 	
 }
 
 function mark_(_this)
 {
-	_this.style.backgroundColor="#6f0038";
-	_this.onmouseout="";
-	_this.onmouseover="";
-	_this.onclick="";
+	var id = _this.id;
+	id = id.replace("SquareDiv_","");
+	id = parseInt(id);
+	var x,y;
+	x= Math.floor( (id-1)/current_cols +1 ) ;
+	y= id%current_cols;
+	
+	if( mat[x][y] == 50 ){
+		_this.style.backgroundColor = "#2d65fb";
+		/*
+		_this.onmouseover="m_on(this)";
+		_this.onmouseout="m_out(this)";
+		_this.onclick=function clicked(this)";*/
+		mat[x][y]= 2;
+		stare[id] = 0;
+	}
+	else if(mat[x][y] <= 2 )
+	{
+		mat[x][y] = 50;
+		_this.style.backgroundColor="#6f0038";
+		stare[id] = 5;
+	}
+}
+function _disable(ID){
+	var el = document.getElementById(ID);
+	el.onmouseout="";
+	el.onmouseover="";
+	el.onclick="";
 }
 
 function clicked(THIS)
@@ -136,12 +173,21 @@ function clicked(THIS)
 	/*document.getElementById("demo").innerHTML += "mat "+ x+" "+y+" ";*/
 	
 	if( stare[nr] == 1 ){
-		document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
-		document.getElementById("SquareDiv_"+nr).onmouseout="";
-		document.getElementById("SquareDiv_"+nr).onmouseover="";
-		document.getElementById("SquareDiv_"+nr).onclick="";
-		
+		if( AutoLose ){
+			for(var i=0; i < bmb.length; ++i){
+				x = bmb[i][0]; y = bmb[i][1];
+				nr = (x-1)*current_cols+y;
+				document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
+				_disable("SquareDiv_"+nr);
+				
+			}
+			
+		}
+		else{		
+			document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
+			_disable("SquareDiv_"+nr);
 			mat[x][y] = 103;
+		}
 	}	
 	else
 	{
@@ -152,9 +198,7 @@ function clicked(THIS)
 		{
 			document.getElementById("SquareDiv_"+nr).innerText = -mat[x][y];
 			document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-			document.getElementById("SquareDiv_"+nr).onmouseout="";
-			document.getElementById("SquareDiv_"+nr).onmouseover="";
-			document.getElementById("SquareDiv_"+nr).onclick="";
+			_disable("SquareDiv_"+nr);
 			mat[x][y] = 100;
 		}
 		
@@ -203,9 +247,7 @@ function fill_(x,y){
 		y = sty[index];
 		nr = (x-1)*current_rows + y; 
 		document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-		document.getElementById("SquareDiv_"+nr).onmouseout="";
-		document.getElementById("SquareDiv_"+nr).onmouseover="";
-		document.getElementById("SquareDiv_"+nr).onclick="";
+		_disable("SquareDiv_"+nr);
 		
 		for(var a=-1;a<2;++a){
 			i = x+a; 
@@ -218,9 +260,7 @@ function fill_(x,y){
 					nr = (i-1)*current_rows + j; 
 					document.getElementById("SquareDiv_"+nr).innerText = -mat[i][j];
 					document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-					document.getElementById("SquareDiv_"+nr).onmouseout="";
-					document.getElementById("SquareDiv_"+nr).onmouseover="";
-					document.getElementById("SquareDiv_"+nr).onclick="";
+					_disable("SquareDiv_"+nr);
 					mat[i][j] = 102;
 				}
 			}
@@ -256,10 +296,17 @@ function _LoadSquares(rows,cols)
 }
 
 function m_on(_this){
+	var id = _this.id;
+	id = id.replace("SquareDiv_","");
+	id = parseInt(id);
+	if(stare[id] == 5 ) return;
 	_this.style.backgroundColor = "#0f2e83";
 }
 
 function m_out(_this){
+	var id = _this.id;
+	id = id.replace("SquareDiv_","");
+	id = parseInt(id);
+	if(stare[id] == 5 ) return;
 	_this.style.backgroundColor = "#2d65fb";
-	var abc = " ";
 }
