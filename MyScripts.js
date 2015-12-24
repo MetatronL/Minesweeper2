@@ -114,12 +114,7 @@ function _CreateBombs(_rows,_cols)
 	}
 	
 }
-function ver(x)
-{
-	if( !(x<1 || x>len ) )
-		return 0;
-	return stare[x];
-}
+
 function mark_(_this)
 {
 	_this.style.backgroundColor="#6f0038";
@@ -132,13 +127,13 @@ function clicked(THIS)
 {
 	var nr = THIS.id;
 	nr = nr.replace("SquareDiv_","");
+	nr = parseInt(nr);
 	var x=1,y=1;
-	x = Math.floor((nr-1)/current_rows + 1);
+	x = Math.floor((nr-1)/current_cols + 1);
 	
 	y = nr%current_cols;
 	if(y==0) y = current_cols;
 	/*document.getElementById("demo").innerHTML += "mat "+ x+" "+y+" ";*/
-	nr = nr.replace("SquareDiv_","");
 	
 	if( stare[nr] == 1 ){
 		document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
@@ -171,6 +166,9 @@ function clicked(THIS)
 	
 }
 function fill_(x,y){
+	x = parseInt(x);
+	y = parseInt(y);
+	
 	var nr = 0;
 	var stx = [x];
 	
