@@ -9,7 +9,12 @@ var raport = [ 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7  ];
 var nrbmbvec = [];
 var mat = [];
  
-
+window.oncontextmenu = function ()
+{
+    
+    return false;     // cancel default menu
+}
+ 
 function Generate()
 {
 	var _rows = document.getElementById("input_rows").value;
@@ -114,6 +119,13 @@ function ver(x)
 	if( !(x<1 || x>len ) )
 		return 0;
 	return stare[x];
+}
+function mark_(_this)
+{
+	_this.style.backgroundColor="#6f0038";
+	_this.onmouseout="";
+	_this.onmouseover="";
+	_this.onclick="";
 }
 
 function clicked(THIS)
@@ -235,7 +247,7 @@ function _LoadSquares(rows,cols)
 	for(var i = rows ; i > 0; --i){
 		
 		for(var j = i*cols; j > (i-1)*cols ; --j){
-			code = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+";height:"+_width+"'><div class='w3-center' id='SquareDiv_"+j+"'onmouseover='m_on(this)' onmouseout='m_out(this)' onclick='clicked(this)'  style='height:100%;background-color:"+'#2d65fb'+" ' ></div></div>" ;
+			code = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+";height:"+_width+"'><div class='w3-center' id='SquareDiv_"+j+"'onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)' onclick='clicked(this)'  style='height:100%;background-color:"+'#2d65fb'+" ' ></div></div>" ;
 			con.innerHTML += code;
 			
 		}
