@@ -168,7 +168,7 @@ function clicked(THIS)
 	
 	y = nr%_cols;
 	if(y==0) y = _cols;
-	
+	if( use[x][y] == -1 ) return ;
 	
 	if( mat[x][y] == -1 ){
 		if( AutoLose == 1 ){
@@ -274,14 +274,14 @@ function fill_(x,y){
 function _LoadSquares(rows,cols)
 {
 	
-	var _width = square_width+"px" ;
+	var _width = parseInt(square_width) ;
 	var code = "";
 	var con = document.getElementById("ContentDiv");
 	con.innerHTML = "";
 	for(var i = rows ; i > 0; --i){
 		
 		for(var j = i*cols; j > (i-1)*cols ; --j){
-			code = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+";height:"+_width+"'><div class='w3-center' id='SquareDiv_"+j+"'onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)' onclick='clicked(this)'  style='height:100%;background-color:"+'#2d65fb'+" ' ></div></div>" ;
+			code = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+"px;height:"+_width+"px'><div class='w3-center' id='SquareDiv_"+j+"'onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)' onclick='clicked(this)'  style='height:100%;background-color:"+'#2d65fb'+" ' ></div></div>" ;
 			con.innerHTML += code;
 			
 		}
