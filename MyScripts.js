@@ -3,8 +3,8 @@ var AutoLose =1;
 
 
 var square_width = 50 ;
-var current_rows = 0;
-var current_cols = 0;
+var _rows = 0;
+var_cols = 0;
 var current_diff = 0;
 
 var stare = [] ;
@@ -16,56 +16,52 @@ var nrBombe = 0;
 window.oncontextmenu = function (){return false; // cancel default menu  
 }
 
-
+function createMatrix(mm)
+{
+	mm.length = 0;
+	mm.length = _rows +2;
+	for(var i=0;i < _rows+2;++i){
+		mm[i] = [];
+		mm[i].length = _cols+2;
+		for(var j=0;j<_cols+2;++j)
+			m[i][j] = 0;
+	}
+	
+}
  
 function Generate()
 {
-	var _rows = document.getElementById("input_rows").value;
-	var _cols = document.getElementById("input_cols").value;
-	var _diff = document.getElementById("input_difi").value;
+	var __rows = document.getElementById("input_rows").value;
+	var __cols = document.getElementById("input_cols").value;
+	var _diff  = document.getElementById("input_difi").value;
 	
-	if( _rows < 5) _rows = 5;
-	if( _rows > 20) _rows = 20;
+	if( __rows < 5) __rows = 5;
+	if( __rows > 20) __rows = 20;
 	
-	if( _cols < 5) _cols = 5;
-	if( _cols > 20) _cols = 20;
+	if( __cols < 5) __cols = 5;
+	if( __cols > 20) __cols = 20;
 	
 	if( _diff < 1) _diff = 1;
 	if( _diff > 6) _diff = 6;
 	
-	current_rows = _rows;
-	current_cols = _cols;
+	_rows = __rows;
+	_cols = __cols;
 	current_diff = _diff;
 	
 	len = _rows * _cols;
 	bmb.length = 0;
 	
-	stare.length = _rows * _cols+1;
+	stare.length = _rows * _cols +1;
 	
 	
-	mat.length = _rows+2;
-	
-	for(var i=0;i<=_rows+1;++i)
-	{
-		mat[i] = [];
-		mat[i].length = _cols+2;
-		for(var j=0;j<=_cols+1;++j)
-			mat[i][j] = 0;
-	}
+	createMatrix(mat) ;
 	
 	
 	_LoadSquares(_rows,_cols);
 	
-	_CreateBombs(_rows,_cols);
-	
-	for(var i=0; i < bmb.length; ++i)
-		document.getElementById("demo").innerHTML += "x:"+bmb[i][0]+"y:"+bmb[i][1]+" ";
 	
 	
-}
-function _CreateBombs(_rows,_cols)
-{
-	nrBombe = Math.floor( (current_rows * current_cols) * raport[current_diff-1] ) ;
+	nrBombe = Math.floor( (_rows * _cols) * raport[current_diff-1] ) ;
 	
 	for(var i=1;i <= nrBombe ; ++i) 
 		stare[i] = 1;
@@ -74,13 +70,11 @@ function _CreateBombs(_rows,_cols)
 		
 	for(var i=stare.length ,j,tmp ; i>1; )
 	{
-	
 		j = Math.floor(Math.random() * i )+1;
 		--i;
 		tmp = stare[i];
 		stare[i] = stare[j];
 		stare[j] = tmp;
-		
  	}
 	
 	
@@ -125,6 +119,10 @@ function _CreateBombs(_rows,_cols)
 	
 		for(var j=1;j<=_cols;++j)
 			document.getElementById("demo").innerHTML += "mat["+i+"]["+j+"] = "+mat[i][j]+"    ";
+	
+	for(var i=0; i < bmb.length; ++i)
+		document.getElementById("demo").innerHTML += "x:"+bmb[i][0]+"y:"+bmb[i][1]+" ";
+	
 	
 }
 
