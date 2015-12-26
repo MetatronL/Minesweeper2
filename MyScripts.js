@@ -6,9 +6,10 @@ var square_width = 50 ;
 var _rows = 0;
 var _cols = 0;
 var current_diff = 0;
+var wd;
 
 var stare = [] ;
-var raport = [ 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7  ];
+var raport = [ 0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6  ];
 var bmb= [];
 var mat = [];
 var use = [];
@@ -37,6 +38,9 @@ function Generate()
 	var __rows = document.getElementById("input_rows").value;
 	var __cols = document.getElementById("input_cols").value;
 	var _diff  = document.getElementById("input_difi").value;
+	wd =  document.getElementById("input_pixels").value;
+	
+	square_width = wd;
 	
 	if( __rows < 5) __rows = 5;
 	if( __rows > 20) __rows = 20;
@@ -54,7 +58,7 @@ function Generate()
 	len = _rows * _cols;
 	bmb.length = 0;
 	
-	stare.length = _rows * _cols +1;
+	stare.length = _rows * _cols +3;
 	cx.length = len+1;
 	cy.length = len+1;
 	
@@ -73,7 +77,8 @@ function Generate()
 	for(var i=nrBombe+1; i<stare.length; ++i) 
 		stare[i]=0;
 		
-	for(var i=stare.length ,j,tmp ; i>1; )
+	for(var k=1; k < 10; ++k)
+	for(var i=stare.length-2 ,j,tmp ; i>1; )
 	{
 		j = Math.floor(Math.random() * i )+1;
 		--i;
@@ -123,13 +128,14 @@ function Generate()
 			
 		}
 	}
+	/*
 	for(var i=1;i<=_rows;++i)
 		for(var j=1;j<=_cols;++j)
 			document.getElementById("demo").innerHTML += "mat["+i+"]["+j+"] = "+mat[i][j]+"    ";
 	
 	for(var i=0; i < bmb.length; ++i)
 		document.getElementById("demo").innerHTML += "x:"+bmb[i][0]+"y:"+bmb[i][1]+" ";
-	
+	*/
 	
 }
 
@@ -285,7 +291,7 @@ function _LoadSquares(rows,cols)
 			con.innerHTML += code;
 			
 		}
-		con.innerHTML += "<div class='w3-row'><!-- Useless , just to break columns -->";
+		con.innerHTML += "<div class='w3-row'><!-- empty , just to break line -->";
 		
 	}
 
