@@ -61,7 +61,7 @@ function Generate()
 	
 	_rows = parseInt(__rows);
 	_cols = parseInt(__cols);
-	current_diff = _diff;
+	current_diff = parseInt(_diff);
 	
 	len = _rows * _cols;
 	bmb.length = 0;
@@ -120,14 +120,12 @@ function Generate()
 			x = (i-1)*_cols + j;
 			cx[x]=i;
 			cy[x]=j;
-			
-			if( (mat[i][j] != 0) ) continue;
-			
+			if( (mat[i][j] != 0) ) 			continue;
 			for(var a=-1; a<2; ++a)
 			{
 				for(var b=-1;b<2;++b)
 				{
-					if( a==0 && b == 0) continue;
+					if( a==0 && b == 0)				 continue;
 					if( mat[i+a][j+b] == -1 ) 
 						++mat[i][j];
 					
@@ -136,8 +134,6 @@ function Generate()
 			
 		}
 	}
-	
-	
 }
 
 function mark_(_this)
@@ -148,7 +144,7 @@ function mark_(_this)
 	y= nr%_cols; 
 	if(y==0) y = _cols;
 	
-	if( use[x][y] > 0 ) return;
+	if( use[x][y] > 0 ) 		return;
 	
 	if( use[x][y] ==0){
 		_this.style.backgroundColor="#6f0038";
@@ -164,13 +160,11 @@ function mark_(_this)
 function clicked(THIS)
 {
 	var nr = parseInt( THIS.id.substring(10,THIS.id.length) );
-	
 	var x=1,y=1;
 	x = Math.floor((nr-1)/_cols + 1);
-	
-	y = parseInt(nr%_cols);
+	y = nr%_cols;
 	if(y==0) y = _cols;
-	if( use[x][y] == -1 ) return ;
+	if( use[x][y] != 0 ) return ;
 	
 	if( mat[x][y] == -1 ){
 		if( AutoLose == 1 ){
@@ -184,7 +178,6 @@ function clicked(THIS)
 		}
 		else{		
 			document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
-			
 			use[x][y] = 1;
 		}
 	}	
@@ -194,11 +187,9 @@ function clicked(THIS)
 		{
 			document.getElementById("SquareDiv_"+nr).innerText = mat[x][y];
 			document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-			
 			putStiva(x,y,++level);
 			use[x][y] = 2;
 		}
-		
 		else if(mat[x][y]==0){
 			fill_(x,y);
 		}
@@ -207,19 +198,16 @@ function clicked(THIS)
 	
 }
 function fill_(x,y){
-	x = parseInt(x);
-	y = parseInt(y);
-	
-	var nr = 0;
-	
 	var stx = [x];
 	var sty = [y];
-	var index = 0;
+	var i=0,j=0,index=0,nr=0;
 	
-	var i=0,j=0;
+	++level; 
 	
-	++level;
 	use[x][y] = 2;
+	nr = xytonr(x,y);
+	document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
+	putStiva(x,y,level);
 	
 	for( ; index < stx.length ; ++index )
 	{
@@ -227,53 +215,31 @@ function fill_(x,y){
 		y = sty[index];
 		for(var a=-1;a<2;++a){
 			i = x+a; 
-			if( i <1 || i>_rows) continue;
+			if( i <1 || i>_rows)			continue;
 			for(var b=-1;b<2;++b){
 				j=y+b;
-				if(a==0 && b == 0) continue;
-				if( j <1 || j > _cols ) continue;
-				if(mat[i][j] == 0 && use[i][j] ==0){
-					stx.length = stx.length+1;
-					stx[stx.length-1] = i;
-					sty.length = sty.length+1;
-					sty[sty.length-1] = j;
-					
-					use[i][j] = 2;
-				}
-			}
-		}
-		
-	}
-	for(index =0;index < stx.length ; ++index)
-	{
-		x = stx[index];
-		y = sty[index];
-		nr = (x-1)*_cols + y; 
-		document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-		putStiva(x,y,level);
-		
-		for(var a=-1;a<2;++a){
-			i = x+a; 
-			if( i <1 || i > _rows) continue;
-			for(var b=-1;b<2;++b){
-				j=y+b;
-				if(a==0 && b == 0) continue;
-				if( j <1 || j > _cols ) continue;
-				if(mat[i][j] > 0 && use[i][j] == 0){
-					nr = (i-1)*_cols + j; 
+				if( a==0 && b == 0) 			continue;
+				if( j <1 || j > _cols )  		continue;
+				if( use[i][j] !=0 ) 			continue;
+				
+				if(mat[i][j] == 0 ){
+					stx.push(i);
+					sty.push(j);
+					nr = xytonr(i,j);
+					document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
+					putStiva(i,j,level);
+				}else if(mat[i][j] > 0){
+					nr = xytonr(i,j);
 					document.getElementById("SquareDiv_"+nr).innerText = mat[i][j];
 					document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-					
 					putStiva(i,j,level);
-					use[i][j] = 2;
+					
 				}
+				use[i][j] = 2;
 			}
 		}
 		
-		
 	}
-	
-	
 	
 	
 }
@@ -281,50 +247,41 @@ function fill_(x,y){
 
 function _LoadSquares(rows,cols)
 {
-	
+	var con = document.getElementById("ContentDiv");
 	var _width = parseInt(square_width) ;
 	var code = "";
-	var con = document.getElementById("ContentDiv");
+	var gincode = "class='w3-center' onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)' onclick='clicked(this)'  style='height:100%;background-color:"+'#2d65fb'+"'" ;
+	var gcode = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+"px;height:"+_width+"px'><div "+gincode+" id='SquareDiv_";
 	con.innerHTML = "";
 	for(var i = rows ; i > 0; --i){
-		
 		for(var j = i*cols; j > (i-1)*cols ; --j){
-			code = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+"px;height:"+_width+"px'><div class='w3-center' id='SquareDiv_"+j+"'onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)' onclick='clicked(this)'  style='height:100%;background-color:"+'#2d65fb'+" ' ></div></div>" ;
+			code = gcode+j+"' ></div></div>" ;
 			con.innerHTML += code;
-			
 		}
-		con.innerHTML += "<div class='w3-row'><!-- empty , just to break line -->";
-		
+		con.innerHTML += "<div class='w3-row'><!--To breakLine-->";
 	}
 
 }
 function putStiva(x,y,level){
-	++rlevel;
-	stiva.length = rlevel;
+	stiva.length = ++rlevel;
 	stiva[rlevel-1] = [x,y,level];
-	
 }
 
 function UNDO(){
 	if(stiva.length < 1 || rlevel <1) return;
 	var x,y,el,lev;
 	var lev2 = stiva[rlevel-1][2];
-	
-	for(; 1 ;)
-	{
-		if(rlevel <1 ) break;
+	for(; 1 ;){
+		if(rlevel <1 ) 			break;
 		lev = stiva[rlevel-1][2];
-		if( lev != lev2) break;
-	
+		if( lev != lev2) 		break;
 		x   = stiva[rlevel-1][0];
 		y   = stiva[rlevel-1][1];
-		
 		nr = (x-1)*_cols + y; 
 		el = document.getElementById("SquareDiv_" + nr);
 		el.innerText = "";
 		el.style.backgroundColor="#2d65fb";
 		use[x][y] = 0;
-		
 		--rlevel;
 	}
 	debug.innerText += " U:"+rlevel;
@@ -332,33 +289,48 @@ function UNDO(){
 
 function REDO()
 {
-	if( rlevel >= stiva.length ) return;
+	++rlevel;
+	if(   rlevel<1 || stiva.length<1 ) return;
+	if(   rlevel > stiva.length){ -- rlevel; return; }
 	var x,y,lev,lev2;
-	lev2 = lev = stiva[rlevel][2];
-	while(true)
-	{
-		if( rlevel >= stiva.length ) break;
-		
-		++rlevel;
-		
-		lev = stiva[rlevel-1][2];
-		if( lev != lev2) break;
 	
+	
+	lev2 = stiva[rlevel-1][2];
+	while(true){
+		lev = stiva[rlevel-1][2];
+		if( lev != lev2) 				break;
+		
 		x   = stiva[rlevel-1][0];
 		y   = stiva[rlevel-1][1];
-		
 		nr = (x-1)*_cols + y; 
+		
 		el = document.getElementById("SquareDiv_" + nr);
 		if(mat[x][y]) el.innerText = mat[x][y];
 		el.style.backgroundColor="#8ed379";
+		
 		use[x][y] = 2;
 		
-		
-		
+		++rlevel;
+		if(rlevel > stiva.length)		break;
 	}
 	debug.innerText += " R:"+rlevel;
+	--rlevel;
+}
+function REDOALL(){
+	while( rlevel < stiva.length ) REDO();
+	
 }
 
+function xytonr(x,y){
+	x = parseInt(x);
+	y = parseInt(y);
+	return parseInt((x-1)* _cols + y);
+}
+function nrtoxy(nr,x,y){
+	x = (nr-1)/_cols +1;
+	y = nr % _cols;
+	if(y==0) y = _cols;
+}
 
 function m_on(THIS){
 	var nr = parseInt( THIS.id.substring(10,THIS.id.length) );
