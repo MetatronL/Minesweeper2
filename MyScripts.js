@@ -36,9 +36,50 @@ function createMatrix(mm)
 	}
 	
 }
+
+function setCookie(cname,cvalue,exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires=" + d.toGMTString();
+    document.cookie = cname+"="+cvalue+"; "+expires;
+}
+function checkCookie() {
+    var user = getCookie("username");
+    if (user != "") {
+        alert("Welcome again " + user);
+    } else {
+        user = prompt("Please enter your name:", "");
+        if (user != "" && user != null) {
+            setCookie("username", user, 365);
+        }
+    }
+	
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function loadcookies()
+{
+	document.getElementById("input_rows").value = getCookie("rows");
+	document.getElementById("input_cols").value = getCookie("cols");
+	document.getElementById("input_difi").value = getCookie("diff");
+	document.getElementById("input_pixels").value = getCookie("width");
+}
  
 function Generate()
 {
+
 	debug = document.getElementById("demo");
 	level = rlevel = 0;
 	stiva = [];
@@ -46,7 +87,7 @@ function Generate()
 	var __rows = document.getElementById("input_rows").value;
 	var __cols = document.getElementById("input_cols").value;
 	var _diff  = document.getElementById("input_difi").value;
-	wd =  document.getElementById("input_pixels").value;
+	wd =  parseInt(document.getElementById("input_pixels").value);
 	
 	if(wd>10 )square_width = wd;
 	
@@ -62,6 +103,14 @@ function Generate()
 	_rows = parseInt(__rows);
 	_cols = parseInt(__cols);
 	current_diff = parseInt(_diff);
+	
+	setCookie("rows",_rows,30);
+	setCookie("cols",_cols,30);
+	setCookie("diff",current_diff,30);
+	setCookie("width",wd,30);
+	
+	debug = document.getElementById("demo");
+	debug.innerText += document.cookie;
 	
 	len = _rows * _cols;
 	bmb.length = 0;
