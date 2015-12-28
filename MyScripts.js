@@ -15,7 +15,11 @@ var mat = [];
 var use = [];
 var cx = [];
 var cy = [];
-var nrBombe = 0; 
+var nrBombe = 0;
+var stiva = []; 
+var level = 0;
+var rlevel = 0;
+var debug ;
 
 window.oncontextmenu = function (){return false; // cancel default menu  
 }
@@ -35,12 +39,16 @@ function createMatrix(mm)
  
 function Generate()
 {
+	debug = document.getElementById("demo");
+	level = rlevel = 0;
+	stiva = [];
+	
 	var __rows = document.getElementById("input_rows").value;
 	var __cols = document.getElementById("input_cols").value;
 	var _diff  = document.getElementById("input_difi").value;
 	wd =  document.getElementById("input_pixels").value;
 	
-	square_width = wd;
+	if(wd>10 )square_width = wd;
 	
 	if( __rows < 5) __rows = 5;
 	if( __rows > 20) __rows = 20;
@@ -51,8 +59,8 @@ function Generate()
 	if( _diff < 1) _diff = 1;
 	if( _diff > 6) _diff = 6;
 	
-	_rows = __rows;
-	_cols = __cols;
+	_rows = parseInt(__rows);
+	_cols = parseInt(__cols);
 	current_diff = _diff;
 	
 	len = _rows * _cols;
@@ -128,14 +136,7 @@ function Generate()
 			
 		}
 	}
-	/*
-	for(var i=1;i<=_rows;++i)
-		for(var j=1;j<=_cols;++j)
-			document.getElementById("demo").innerHTML += "mat["+i+"]["+j+"] = "+mat[i][j]+"    ";
 	
-	for(var i=0; i < bmb.length; ++i)
-		document.getElementById("demo").innerHTML += "x:"+bmb[i][0]+"y:"+bmb[i][1]+" ";
-	*/
 	
 }
 
@@ -158,12 +159,7 @@ function mark_(_this)
 	}
 	
 }
-function _disable(ID){
-	var el = document.getElementById(ID);
-	el.onmouseout="";
-	el.onmouseover="";
-	el.onclick="";
-}
+
 
 function clicked(THIS)
 {
@@ -172,7 +168,7 @@ function clicked(THIS)
 	var x=1,y=1;
 	x = Math.floor((nr-1)/_cols + 1);
 	
-	y = nr%_cols;
+	y = parseInt(nr%_cols);
 	if(y==0) y = _cols;
 	if( use[x][y] == -1 ) return ;
 	
@@ -182,13 +178,13 @@ function clicked(THIS)
 				x = bmb[i][0]; y = bmb[i][1];
 				nr = (x-1)*_cols+y;
 				document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
-				_disable("SquareDiv_"+nr);
+				
 				use[x][y] = 1;
 			}
 		}
 		else{		
 			document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
-			_disable("SquareDiv_"+nr);
+			
 			use[x][y] = 1;
 		}
 	}	
@@ -198,7 +194,8 @@ function clicked(THIS)
 		{
 			document.getElementById("SquareDiv_"+nr).innerText = mat[x][y];
 			document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-			_disable("SquareDiv_"+nr);
+			
+			putStiva(x,y,++level);
 			use[x][y] = 2;
 		}
 		
@@ -221,6 +218,9 @@ function fill_(x,y){
 	
 	var i=0,j=0;
 	
+	++level;
+	use[x][y] = 2;
+	
 	for( ; index < stx.length ; ++index )
 	{
 		x = stx[index];
@@ -237,6 +237,7 @@ function fill_(x,y){
 					stx[stx.length-1] = i;
 					sty.length = sty.length+1;
 					sty[sty.length-1] = j;
+					
 					use[i][j] = 2;
 				}
 			}
@@ -249,7 +250,7 @@ function fill_(x,y){
 		y = sty[index];
 		nr = (x-1)*_cols + y; 
 		document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-		_disable("SquareDiv_"+nr);
+		putStiva(x,y,level);
 		
 		for(var a=-1;a<2;++a){
 			i = x+a; 
@@ -258,11 +259,12 @@ function fill_(x,y){
 				j=y+b;
 				if(a==0 && b == 0) continue;
 				if( j <1 || j > _cols ) continue;
-				if(mat[i][j] > 0){
+				if(mat[i][j] > 0 && use[i][j] == 0){
 					nr = (i-1)*_cols + j; 
 					document.getElementById("SquareDiv_"+nr).innerText = mat[i][j];
 					document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-					_disable("SquareDiv_"+nr);
+					
+					putStiva(i,j,level);
 					use[i][j] = 2;
 				}
 			}
@@ -296,6 +298,67 @@ function _LoadSquares(rows,cols)
 	}
 
 }
+function putStiva(x,y,level){
+	++rlevel;
+	stiva.length = rlevel;
+	stiva[rlevel-1] = [x,y,level];
+	
+}
+
+function UNDO(){
+	if(stiva.length < 1 || rlevel <1) return;
+	var x,y,el,lev;
+	var lev2 = stiva[rlevel-1][2];
+	
+	for(; 1 ;)
+	{
+		if(rlevel <1 ) break;
+		lev = stiva[rlevel-1][2];
+		if( lev != lev2) break;
+	
+		x   = stiva[rlevel-1][0];
+		y   = stiva[rlevel-1][1];
+		
+		nr = (x-1)*_cols + y; 
+		el = document.getElementById("SquareDiv_" + nr);
+		el.innerText = "";
+		el.style.backgroundColor="#2d65fb";
+		use[x][y] = 0;
+		
+		--rlevel;
+	}
+	debug.innerText += " U:"+rlevel;
+}
+
+function REDO()
+{
+	if( rlevel >= stiva.length ) return;
+	var x,y,lev,lev2;
+	lev2 = lev = stiva[rlevel][2];
+	while(true)
+	{
+		if( rlevel >= stiva.length ) break;
+		
+		++rlevel;
+		
+		lev = stiva[rlevel-1][2];
+		if( lev != lev2) break;
+	
+		x   = stiva[rlevel-1][0];
+		y   = stiva[rlevel-1][1];
+		
+		nr = (x-1)*_cols + y; 
+		el = document.getElementById("SquareDiv_" + nr);
+		if(mat[x][y]) el.innerText = mat[x][y];
+		el.style.backgroundColor="#8ed379";
+		use[x][y] = 2;
+		
+		
+		
+	}
+	debug.innerText += " R:"+rlevel;
+}
+
 
 function m_on(THIS){
 	var nr = parseInt( THIS.id.substring(10,THIS.id.length) );
