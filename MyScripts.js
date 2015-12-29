@@ -22,6 +22,9 @@ var rlevel = 0;
 var debug ;
 var zero = [];
 var zer  = [];
+var ghj  = [];
+var culori = [ "#2d65fb" , "#0f2e83" , "#8ed379" , "#6f0038" , "#dd0a2b" , "#f66414" ];
+/* culori : 0.idle 1.idle_mouse_on 2.correct 3.checked_bomb 4.failed_bomb 5.correct_checked_bomb  */ 
 
 window.oncontextmenu = function (){return false;}
 
@@ -116,7 +119,6 @@ function Generate()
 		}
 	}
 	
-	
 	for(var i=1;i<=_rows;++i)
 	{
 		for(var j=1;j<=_cols;++j)
@@ -137,7 +139,6 @@ function Generate()
 			}
 		}
 	}
-	
 	for(var i=1;i<=_rows;++i)
 		for(var j=1;j<=_cols;++j){
 			if(mat[i][j] != 0 || zer[i][j]!=0 )	continue;
@@ -173,7 +174,6 @@ function _fillzero(l1,l2){
 	}
 }
 
-
 function mark_(_this)
 {
 	var nr = parseInt( _this.id.substring(10,_this.id.length) );
@@ -185,10 +185,10 @@ function mark_(_this)
 	if( use[x][y] > 0 ) 		return;
 	
 	if( use[x][y] ==0){
-		_this.style.backgroundColor="#6f0038";
+		_this.style.backgroundColor = culori[3];
 		use[x][y] = -1;
 	}else if(use[x][y] == -1){
-		_this.style.backgroundColor = "#2d65fb";
+		_this.style.backgroundColor = culori[1];
 		use[x][y] = 0;
 	}
 	
@@ -209,13 +209,12 @@ function clicked(THIS)
 			for(var i=0; i < bmb.length; ++i){
 				x = bmb[i][0]; y = bmb[i][1];
 				nr = (x-1)*_cols+y;
-				document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
-				
+				document.getElementById("SquareDiv_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4 ];
 				use[x][y] = 1;
 			}
 		}
 		else{		
-			document.getElementById("SquareDiv_"+nr).style.backgroundColor= "#dd0a2b";
+			document.getElementById("SquareDiv_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4];
 			use[x][y] = 1;
 		}
 	}	
@@ -229,8 +228,6 @@ function clicked(THIS)
 			use[x][y] = 2;
 		}
 		else if(mat[x][y]==0){
-			/*fill_(x,y);*/
-			
 			var ind  = zer[x][y] -1;
 			var leng = zero[ind].length;
 			var x,y;
@@ -250,52 +247,6 @@ function clicked(THIS)
 		}
 		
 	}
-	
-}
-function fill_(x,y){
-	var stx = [x];
-	var sty = [y];
-	var i=0,j=0,index=0,nr=0;
-	
-	++level; 
-	
-	use[x][y] = 2;
-	nr = xytonr(x,y);
-	document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-	putStiva(x,y,level);
-	
-	for( ; index < stx.length ; ++index )
-	{
-		x = stx[index];
-		y = sty[index];
-		for(var a=-1;a<2;++a){
-			i = x+a; 
-			if( i <1 || i>_rows)			continue;
-			for(var b=-1;b<2;++b){
-				j=y+b;
-				if( a==0 && b == 0) 			continue;
-				if( j <1 || j > _cols )  		continue;
-				if( use[i][j] !=0 ) 			continue;
-				
-				if(mat[i][j] == 0 ){
-					stx.push(i);
-					sty.push(j);
-					nr = xytonr(i,j);
-					document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-					putStiva(i,j,level);
-				}else if(mat[i][j] > 0){
-					nr = xytonr(i,j);
-					document.getElementById("SquareDiv_"+nr).innerText = mat[i][j];
-					document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-					putStiva(i,j,level);
-					
-				}
-				use[i][j] = 2;
-			}
-		}
-		
-	}
-	
 	
 }
 
@@ -376,7 +327,6 @@ function REDO()
 }
 function REDOALL(){
 	while( rlevel < stiva.length ) REDO();
-	
 }
 
 function xytonr(x,y){
@@ -395,7 +345,7 @@ function m_on(THIS){
 	var x,y;
 	x=cx[nr] ; y =cy[nr];
 	if(use[x][y] != 0 ) return;
-	THIS.style.backgroundColor = "#0f2e83";
+	THIS.style.backgroundColor = culori[1];
 }
 
 function m_out(THIS){
@@ -403,7 +353,7 @@ function m_out(THIS){
 	var x,y;
 	x=cx[nr] ; y =cy[nr];
 	if(use[x][y] != 0 ) return;
-	THIS.style.backgroundColor = "#2d65fb";
+	THIS.style.backgroundColor = culori[0];
 }
 
 
@@ -422,8 +372,7 @@ function checkCookie() {
         if (user != "" && user != null) {
             setCookie("username", user, 365);
         }
-    }
-	
+    }	
 }
 
 function getCookie(cname) {
