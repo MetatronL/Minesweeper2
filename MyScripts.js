@@ -5,7 +5,7 @@ var AutoLose =1;
 var square_width = 50 ;
 var _rows = 0;
 var _cols = 0;
-var current_diff = 0;
+var _diff = 0;
 var wd;
 
 var stare = [] ;
@@ -20,9 +20,9 @@ var stiva = [];
 var level = 0;
 var rlevel = 0;
 var debug ;
+var zero = [];
 
-window.oncontextmenu = function (){return false; // cancel default menu  
-}
+window.oncontextmenu = function (){return false;}
 
 function createMatrix(mm)
 {
@@ -37,37 +37,6 @@ function createMatrix(mm)
 	
 }
 
-function setCookie(cname,cvalue,exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires=" + d.toGMTString();
-    document.cookie = cname+"="+cvalue+"; "+expires;
-}
-function checkCookie() {
-    var user = getCookie("username");
-    if (user != "") {
-        alert("Welcome again " + user);
-    } else {
-        user = prompt("Please enter your name:", "");
-        if (user != "" && user != null) {
-            setCookie("username", user, 365);
-        }
-    }
-	
-}
-
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1);
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
 
 function loadcookies()
 {
@@ -83,66 +52,53 @@ function Generate()
 	debug = document.getElementById("demo");
 	level = rlevel = 0;
 	stiva = [];
+	zero  = [];
+	bmb.length = 0;
 	
-	var __rows = document.getElementById("input_rows").value;
-	var __cols = document.getElementById("input_cols").value;
-	var _diff  = document.getElementById("input_difi").value;
-	wd =  parseInt(document.getElementById("input_pixels").value);
+	_rows = parseInt(document.getElementById("input_rows").value)   || 0;
+	_cols = parseInt(document.getElementById("input_cols").value)   || 0; 
+	_diff = parseInt(document.getElementById("input_difi").value)   || 0; 
+	wd    = parseInt(document.getElementById("input_pixels").value) || 0;
 	
 	if(wd>10 )square_width = wd;
 	
-	if( __rows < 5) __rows = 5;
-	if( __rows > 20) __rows = 20;
+	if( _rows < 5)  _rows = 5;
+	if( _rows > 20) _rows = 20;
 	
-	if( __cols < 5) __cols = 5;
-	if( __cols > 20) __cols = 20;
+	if( _cols < 5)  _cols = 5;
+	if( _cols > 20) _cols = 20;
 	
-	if( _diff < 1) _diff = 1;
-	if( _diff > 6) _diff = 6;
-	
-	_rows = parseInt(__rows);
-	_cols = parseInt(__cols);
-	current_diff = parseInt(_diff);
-	
-	setCookie("rows",_rows,30);
-	setCookie("cols",_cols,30);
-	setCookie("diff",current_diff,30);
-	setCookie("width",wd,30);
-	
-	debug = document.getElementById("demo");
-	debug.innerText += document.cookie;
+	if( _diff < 1)  _diff = 1;
+	if( _diff > 6)  _diff = 6;
 	
 	len = _rows * _cols;
-	bmb.length = 0;
-	
-	stare.length = _rows * _cols +3;
+	stare.length = len +3;
 	cx.length = len+1;
 	cy.length = len+1;
-	
+	nrBombe = Math.floor( (_rows * _cols) * raport[_diff-1] ) ;
 	
 	createMatrix(mat) ;
 	createMatrix(use) ;
 	
 	_LoadSquares(_rows,_cols);
 	
+	setCookie("rows",_rows,30);
+	setCookie("cols",_cols,30);
+	setCookie("diff",_diff,30);
+	setCookie("width",wd,30);
 	
-	
-	nrBombe = Math.floor( (_rows * _cols) * raport[current_diff-1] ) ;
-	
-	for(var i=1;i <= nrBombe ; ++i) 
-		stare[i] = 1;
-	for(var i=nrBombe+1; i<stare.length; ++i) 
+	for(var i=1; i<stare.length; ++i) 
 		stare[i]=0;
-		
-	for(var k=1; k < 10; ++k)
-	for(var i=stare.length-2 ,j,tmp ; i>1; )
-	{
-		j = Math.floor(Math.random() * i )+1;
-		--i;
-		tmp = stare[i];
-		stare[i] = stare[j];
-		stare[j] = tmp;
- 	}
+	
+	for(var m,n=nrBombe; n ;){
+		m = Math.floor(Math.random() *len );
+		if( m > 0 && stare[m]==0 ){
+			stare[m] = 1;
+			--n;
+		}
+	}
+	
+	
 	
 	
 	var x,y;
@@ -298,18 +254,18 @@ function _LoadSquares(rows,cols)
 {
 	var con = document.getElementById("ContentDiv");
 	var _width = parseInt(square_width) ;
-	var code = "";
 	var gincode = "class='w3-center' onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)' onclick='clicked(this)'  style='height:100%;background-color:"+'#2d65fb'+"'" ;
 	var gcode = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+"px;height:"+_width+"px'><div "+gincode+" id='SquareDiv_";
 	con.innerHTML = "";
+	var tmp = "";
 	for(var i = rows ; i > 0; --i){
 		for(var j = i*cols; j > (i-1)*cols ; --j){
-			code = gcode+j+"' ></div></div>" ;
-			con.innerHTML += code;
+			
+			tmp += gcode+j+"' ></div></div>" ;
 		}
-		con.innerHTML += "<div class='w3-row'><!--To breakLine-->";
+		tmp += "<div class='w3-row'><!--To breakLine-->";
 	}
-
+	con.innerHTML = tmp;
 }
 function putStiva(x,y,level){
 	stiva.length = ++rlevel;
@@ -395,4 +351,37 @@ function m_out(THIS){
 	x=cx[nr] ; y =cy[nr];
 	if(use[x][y] != 0 ) return;
 	THIS.style.backgroundColor = "#2d65fb";
+}
+
+
+function setCookie(cname,cvalue,exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires=" + d.toGMTString();
+    document.cookie = cname+"="+cvalue+"; "+expires;
+}
+function checkCookie() {
+    var user = getCookie("username");
+    if (user != "") {
+        alert("Welcome again " + user);
+    } else {
+        user = prompt("Please enter your name:", "");
+        if (user != "" && user != null) {
+            setCookie("username", user, 365);
+        }
+    }
+	
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 }
