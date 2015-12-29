@@ -21,6 +21,7 @@ var level = 0;
 var rlevel = 0;
 var debug ;
 var zero = [];
+var zer  = [];
 
 window.oncontextmenu = function (){return false;}
 
@@ -79,6 +80,7 @@ function Generate()
 	
 	createMatrix(mat) ;
 	createMatrix(use) ;
+	createMatrix(zer);
 	
 	_LoadSquares(_rows,_cols);
 	
@@ -97,9 +99,6 @@ function Generate()
 			--n;
 		}
 	}
-	
-	
-	
 	
 	var x,y;
 	
@@ -136,10 +135,44 @@ function Generate()
 					
 				}
 			}
-			
+		}
+	}
+	
+	for(var i=1;i<=_rows;++i)
+		for(var j=1;j<=_cols;++j){
+			if(mat[i][j] != 0 || zer[i][j]!=0 )	continue;
+			_fillzero(i,j);
+		}
+		
+}
+
+function _fillzero(l1,l2){
+	zero.push([]);
+	var ind = zero.length -1;
+	zero[ind].push([l1,l2]);
+	zer[l1][l2] = ind+1;
+	var x,y,i,j;
+	var index =0;
+	for( ; zero[ind].length >index; ++index){
+		x = zero[ind][index][0];
+		y = zero[ind][index][1];
+		if( mat[x][y] > 0 )		continue;
+		for(var a=-1; a<2; ++a){
+			i = x+a;
+			if(i<1 || i>_rows)		continue;
+			for(var b=-1; b<2; ++b){
+				if(a==0 && b==0) 			continue;
+				j = y+b;
+				if( j<1 || j>_cols )		continue;
+				if( mat[i][j] < 0  )		continue;
+				if( zer[i][j] != 0 )		continue;
+				zer[i][j] = ind+1;
+				zero[ind].push([i,j]);
+			}
 		}
 	}
 }
+
 
 function mark_(_this)
 {
@@ -196,7 +229,24 @@ function clicked(THIS)
 			use[x][y] = 2;
 		}
 		else if(mat[x][y]==0){
-			fill_(x,y);
+			/*fill_(x,y);*/
+			
+			var ind  = zer[x][y] -1;
+			var leng = zero[ind].length;
+			var x,y;
+			++level;
+			for(var index =0 ; index < leng; ++index){
+				x = zero[ind][index][0];
+				y = zero[ind][index][1];
+				if( use[x][y] != 0 )		continue;
+				use[x][y]=2;
+				putStiva(x,y,level);
+				nr = xytonr(x,y);
+				if(mat[x][y] )
+					document.getElementById("SquareDiv_"+nr).innerText = mat[x][y];
+				document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
+			}
+			
 		}
 		
 	}
@@ -259,13 +309,16 @@ function _LoadSquares(rows,cols)
 	con.innerHTML = "";
 	var tmp = "";
 	for(var i = rows ; i > 0; --i){
+		tmp = "";
 		for(var j = i*cols; j > (i-1)*cols ; --j){
 			
 			tmp += gcode+j+"' ></div></div>" ;
 		}
-		tmp += "<div class='w3-row'><!--To breakLine-->";
+		con.innerHTML += tmp;
+		con.innerHTML += "<div class='w3-row'><!--To breakLine-->";
+		
 	}
-	con.innerHTML = tmp;
+	
 }
 function putStiva(x,y,level){
 	stiva.length = ++rlevel;
