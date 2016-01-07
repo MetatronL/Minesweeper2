@@ -1,7 +1,5 @@
 var AutoLose =1;
 
-
-
 var square_width = 50 ;
 var _rows = 0;
 var _cols = 0;
@@ -9,7 +7,7 @@ var _diff = 0;
 var wd;
 
 var stare = [] ;
-var raport = [ 0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6  ];
+var raport = [ 0.1 , 0.2 , 0.25 , 0.3 , 0.35 , 0.55  ];
 var bmb= [];
 var mat = [];
 var use = [];
@@ -25,6 +23,7 @@ var zer  = [];
 var ghj  = [];
 var culori = [ "#2d65fb" , "#0f2e83" , "#8ed379" , "#6f0038" , "#dd0a2b" , "#f66414" ];
 /* culori : 0.idle 1.idle_mouse_on 2.correct 3.checked_bomb 4.failed_bomb 5.correct_checked_bomb  */ 
+var def_zero_col;
 
 window.oncontextmenu = function (){return false;}
 
@@ -38,7 +37,6 @@ function createMatrix(mm)
 		for(var j=0;j<_cols+2;++j)
 			mm[i][j] = 0;
 	}
-	
 }
 
 
@@ -59,10 +57,11 @@ function Generate()
 	zero  = [];
 	bmb.length = 0;
 	
-	_rows = parseInt(document.getElementById("input_rows").value)   || 0;
-	_cols = parseInt(document.getElementById("input_cols").value)   || 0; 
-	_diff = parseInt(document.getElementById("input_difi").value)   || 0; 
-	wd    = parseInt(document.getElementById("input_pixels").value) || 0;
+	
+	_rows = parseInt(document.getElementById("input_rows").value)    || 0;
+	_cols = parseInt(document.getElementById("input_cols").value)    || 0; 
+	_diff = parseInt(document.getElementById("input_difi").value)    || 0; 
+	wd    = parseInt(document.getElementById("input_pixels").value)  || 0;
 	
 	if(wd>10 )square_width = wd;
 	
@@ -81,8 +80,12 @@ function Generate()
 	cy.length = len+1;
 	nrBombe = Math.floor( (_rows * _cols) * raport[_diff-1] ) ;
 	
-	createMatrix(mat) ;
-	createMatrix(use) ;
+	def_zero_col = []; 
+	def_zero_col.length = _cols+2; 
+	def_zero_col.fill(0);
+	
+	createMatrix(mat);
+	createMatrix(use);
 	createMatrix(zer);
 	
 	_LoadSquares(_rows,_cols);
