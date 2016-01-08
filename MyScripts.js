@@ -243,8 +243,6 @@ function clicked(THIS)
 	
 }
 
-
-
 function _fillzero(l1,l2){
 	zero.push([]);
 	var ind = zero.length -1;
@@ -271,6 +269,9 @@ function _fillzero(l1,l2){
 		}
 	}
 }
+
+
+
 
 function mark_(_this)
 {
