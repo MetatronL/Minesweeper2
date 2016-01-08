@@ -171,11 +171,11 @@ function __clicked(e){
 		clicked(this);
 	}
 	else if( e.which == 2 ){
-		debug.innerText += "2";
 		var x,y,nr,tmp;
 		nr = parseInt( this.id.substring(4,this.id.length) );
 		x = cx[nr];
 		y = cy[nr];
+		if( mat[x][y] == -1 ) return;
 		for( var a= -1; a<2; ++a ){
 			if( x+a < 1 || x+a > _rows ) continue;
 			for(var b=-1; b<2;++b){
@@ -280,9 +280,7 @@ function mark_(_this)
 	x= Math.floor( (nr-1)/_cols +1 ) ;
 	y= nr%_cols; 
 	if(y==0) y = _cols;
-	
 	if( use[x][y] > 0 ) 		return;
-	
 	if( use[x][y] ==0){
 		_this.style.backgroundColor = culori[3];
 		use[x][y] = -1;
@@ -301,7 +299,7 @@ function _LoadSquares(rows,cols)
 	var _width = parseInt(square_width) ;
 	var gincode = "class='w3-center sqr' onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)'   style='height:100%;background-color:"+'#2d65fb'+"'" ;
 	var gcode = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+"px;height:"+_width+"px'><div "+gincode+" id='sqr_"; 
-	con.innerHTML = "";		 /*onclick='clicked(this)' */
+	con.innerHTML = "";		
 	var tmp = "";
 	for(var i = rows ; i > 0; --i){
 		tmp = "";
@@ -311,9 +309,7 @@ function _LoadSquares(rows,cols)
 		}
 		con.innerHTML += tmp;
 		con.innerHTML += "<div class='w3-row'><!--To breakLine-->";
-		
 	}
-	
 }
 function putStiva(x,y,level){
 	stiva.length = ++rlevel;
@@ -337,7 +333,6 @@ function UNDO(){
 		use[x][y] = 0;
 		--rlevel;
 	}
-	debug.innerText += " U:"+rlevel;
 }
 
 function REDO()
@@ -346,7 +341,6 @@ function REDO()
 	if(   rlevel<1 || stiva.length<1 ) return;
 	if(   rlevel > stiva.length){ -- rlevel; return; }
 	var x,y,lev,lev2;
-	
 	
 	lev2 = stiva[rlevel-1][2];
 	while(true){
@@ -436,4 +430,7 @@ function getCookie(cname) {
         }
     }
     return "";
+}
+function DEBUG(tmp_){
+	debug.innerText += tmp_;
 }
