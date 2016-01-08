@@ -27,6 +27,8 @@ var def_zero_col;
 
 window.oncontextmenu = function (){return false;}
 
+document.body.onmousedown = function(e) { if (e.button === 1) return false; }
+
 function createMatrix(mm)
 {
 	mm.length = 0;
@@ -80,15 +82,13 @@ function Generate()
 	cy.length = len+1;
 	nrBombe = Math.floor( (_rows * _cols) * raport[_diff-1] ) ;
 	
-	def_zero_col = []; 
-	def_zero_col.length = _cols+2; 
-	def_zero_col.fill(0);
 	
 	createMatrix(mat);
 	createMatrix(use);
 	createMatrix(zer);
 	
 	_LoadSquares(_rows,_cols);
+	_setEvents();
 	
 	setCookie("rows",_rows,30);
 	setCookie("cols",_cols,30);
@@ -124,9 +124,10 @@ function Generate()
 	
 	for(var i=1;i<=_rows;++i)
 	{
+		x = (i-1)*_cols;
 		for(var j=1;j<=_cols;++j)
 		{
-			x = (i-1)*_cols + j;
+			++x;
 			cx[x]=i;
 			cy[x]=j;
 			if( (mat[i][j] != 0) ) 			continue;
@@ -147,8 +148,102 @@ function Generate()
 			if(mat[i][j] != 0 || zer[i][j]!=0 )	continue;
 			_fillzero(i,j);
 		}
-		
+	
+	var _a=2,_b=2,_c=2;
+	__xytonr(_a,_b,_c);
+	debug.innerText += _c;
+	
 }
+
+function _setEvents()
+{
+	var svec = document.getElementsByClassName("sqr");
+	var l = svec.length;
+	for(var i =0; i < l; ++i){
+		svec[i].addEventListener('click' ,  __clicked , false);
+	}
+	
+}
+
+function __clicked(e){
+	++level;
+	if( e.which ==1 ){
+		clicked(this);
+	}
+	else if( e.which == 2 ){
+		debug.innerText += "2";
+		var x,y,nr,tmp;
+		nr = parseInt( this.id.substring(4,this.id.length) );
+		x = cx[nr];
+		y = cy[nr];
+		for( var a= -1; a<2; ++a ){
+			if( x+a < 1 || x+a > _rows ) continue;
+			for(var b=-1; b<2;++b){
+				if(y+b < 1 || y+b > _cols)  continue;
+				if(a == 0 && y == 0) 		continue;
+				nr = xytonr(x+a,b+y);
+				tmp = document.getElementById("sqr_"+nr );
+				clicked( tmp );
+			}
+		}
+	}
+	
+}
+
+
+function clicked(THIS)
+{
+	var nr = parseInt( THIS.id.substring(4,THIS.id.length) );
+	var x=1,y=1;
+	x = cx[nr];
+	y = cy[nr];
+	if( use[x][y] != 0 ) return ;
+	
+	if( mat[x][y] == -1 ){
+		if( AutoLose == 1 ){
+			for(var i=0; i < bmb.length; ++i){
+				x = bmb[i][0]; y = bmb[i][1];
+				nr = (x-1)*_cols+y;
+				document.getElementById("sqr_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4 ];
+				use[x][y] = 1;
+			}
+		}else{		
+			document.getElementById("sqr_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4];
+			use[x][y] = 1;
+		}
+	}else
+	{
+		if(mat[x][y] >0 )
+		{
+			document.getElementById("sqr_"+nr).innerText = mat[x][y];
+			document.getElementById("sqr_"+nr).style.backgroundColor="#8ed379";
+			putStiva(x,y,level);
+			use[x][y] = 2;
+		}
+		else if(mat[x][y]==0){
+			var ind  = zer[x][y] -1;
+			var leng = zero[ind].length;
+			var x,y;
+
+			for(var index =0 ; index < leng; ++index){
+				x = zero[ind][index][0];
+				y = zero[ind][index][1];
+				if( use[x][y] != 0 )		continue;
+				use[x][y]=2;
+				putStiva(x,y,level);
+				nr = xytonr(x,y);
+				if(mat[x][y] )
+					document.getElementById("sqr_"+nr).innerText = mat[x][y];
+				document.getElementById("sqr_"+nr).style.backgroundColor="#8ed379";
+			}
+			
+		}
+		
+	}
+	
+}
+
+
 
 function _fillzero(l1,l2){
 	zero.push([]);
@@ -179,7 +274,7 @@ function _fillzero(l1,l2){
 
 function mark_(_this)
 {
-	var nr = parseInt( _this.id.substring(10,_this.id.length) );
+	var nr = parseInt( _this.id.substring(4,_this.id.length) );
 	var x,y;
 	x= Math.floor( (nr-1)/_cols +1 ) ;
 	y= nr%_cols; 
@@ -198,69 +293,14 @@ function mark_(_this)
 }
 
 
-function clicked(THIS)
-{
-	var nr = parseInt( THIS.id.substring(10,THIS.id.length) );
-	var x=1,y=1;
-	x = Math.floor((nr-1)/_cols + 1);
-	y = nr%_cols;
-	if(y==0) y = _cols;
-	if( use[x][y] != 0 ) return ;
-	
-	if( mat[x][y] == -1 ){
-		if( AutoLose == 1 ){
-			for(var i=0; i < bmb.length; ++i){
-				x = bmb[i][0]; y = bmb[i][1];
-				nr = (x-1)*_cols+y;
-				document.getElementById("SquareDiv_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4 ];
-				use[x][y] = 1;
-			}
-		}
-		else{		
-			document.getElementById("SquareDiv_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4];
-			use[x][y] = 1;
-		}
-	}	
-	else
-	{
-		if(mat[x][y] >0 )
-		{
-			document.getElementById("SquareDiv_"+nr).innerText = mat[x][y];
-			document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-			putStiva(x,y,++level);
-			use[x][y] = 2;
-		}
-		else if(mat[x][y]==0){
-			var ind  = zer[x][y] -1;
-			var leng = zero[ind].length;
-			var x,y;
-			++level;
-			for(var index =0 ; index < leng; ++index){
-				x = zero[ind][index][0];
-				y = zero[ind][index][1];
-				if( use[x][y] != 0 )		continue;
-				use[x][y]=2;
-				putStiva(x,y,level);
-				nr = xytonr(x,y);
-				if(mat[x][y] )
-					document.getElementById("SquareDiv_"+nr).innerText = mat[x][y];
-				document.getElementById("SquareDiv_"+nr).style.backgroundColor="#8ed379";
-			}
-			
-		}
-		
-	}
-	
-}
-
 
 function _LoadSquares(rows,cols)
 {
 	var con = document.getElementById("ContentDiv");
 	var _width = parseInt(square_width) ;
-	var gincode = "class='w3-center' onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)' onclick='clicked(this)'  style='height:100%;background-color:"+'#2d65fb'+"'" ;
-	var gcode = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+"px;height:"+_width+"px'><div "+gincode+" id='SquareDiv_";
-	con.innerHTML = "";
+	var gincode = "class='w3-center sqr' onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)'   style='height:100%;background-color:"+'#2d65fb'+"'" ;
+	var gcode = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+"px;height:"+_width+"px'><div "+gincode+" id='sqr_"; 
+	con.innerHTML = "";		 /*onclick='clicked(this)' */
 	var tmp = "";
 	for(var i = rows ; i > 0; --i){
 		tmp = "";
@@ -290,7 +330,7 @@ function UNDO(){
 		x   = stiva[rlevel-1][0];
 		y   = stiva[rlevel-1][1];
 		nr = (x-1)*_cols + y; 
-		el = document.getElementById("SquareDiv_" + nr);
+		el = document.getElementById("sqr_" + nr);
 		el.innerText = "";
 		el.style.backgroundColor="#2d65fb";
 		use[x][y] = 0;
@@ -316,7 +356,7 @@ function REDO()
 		y   = stiva[rlevel-1][1];
 		nr = (x-1)*_cols + y; 
 		
-		el = document.getElementById("SquareDiv_" + nr);
+		el = document.getElementById("sqr_" + nr);
 		if(mat[x][y]) el.innerText = mat[x][y];
 		el.style.backgroundColor="#8ed379";
 		
@@ -337,6 +377,12 @@ function xytonr(x,y){
 	y = parseInt(y);
 	return parseInt((x-1)* _cols + y);
 }
+function __xytonr(x,y,nr){
+	x = parseInt(x);
+	y = parseInt(y);
+	nr = parseInt((x-1)* _cols + y);
+}
+
 function nrtoxy(nr,x,y){
 	x = (nr-1)/_cols +1;
 	y = nr % _cols;
@@ -344,7 +390,7 @@ function nrtoxy(nr,x,y){
 }
 
 function m_on(THIS){
-	var nr = parseInt( THIS.id.substring(10,THIS.id.length) );
+	var nr = parseInt( THIS.id.substring(4,THIS.id.length) );
 	var x,y;
 	x=cx[nr] ; y =cy[nr];
 	if(use[x][y] != 0 ) return;
@@ -352,7 +398,7 @@ function m_on(THIS){
 }
 
 function m_out(THIS){
-	var nr = parseInt( THIS.id.substring(10,THIS.id.length) );
+	var nr = parseInt( THIS.id.substring(4,THIS.id.length) );
 	var x,y;
 	x=cx[nr] ; y =cy[nr];
 	if(use[x][y] != 0 ) return;
