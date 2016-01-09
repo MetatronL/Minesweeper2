@@ -1,4 +1,4 @@
-var AutoLose =1;
+var AutoLose =1,Lost=0;
 
 var square_width = 50 ;
 var _rows = 0;
@@ -58,7 +58,7 @@ function Generate()
 	stiva = [];
 	zero  = [];
 	bmb.length = 0;
-	
+	Lost = 0;
 	
 	_rows = parseInt(document.getElementById("input_rows").value)    || 0;
 	_cols = parseInt(document.getElementById("input_cols").value)    || 0; 
@@ -164,8 +164,13 @@ function _setEvents()
 	}
 	
 }
+function bad(){
+	if( AutoLose && Lost ) return true;
+	return false;
+}
 
 function __clicked(e){
+	if( bad() ) return;
 	++level;
 	if( e.which ==1 ){
 		clicked(this);
@@ -201,12 +206,14 @@ function clicked(THIS)
 	
 	if( mat[x][y] == -1 ){
 		if( AutoLose == 1 ){
+			Lost = 1;
 			for(var i=0; i < bmb.length; ++i){
 				x = bmb[i][0]; y = bmb[i][1];
 				nr = (x-1)*_cols+y;
 				document.getElementById("sqr_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4 ];
 				use[x][y] = 1;
 			}
+			document.getElementById("game-info").innerText = "GAME OVER!";
 		}else{		
 			document.getElementById("sqr_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4];
 			use[x][y] = 1;
@@ -275,6 +282,7 @@ function _fillzero(l1,l2){
 
 function mark_(_this)
 {
+	if( bad() ) return;
 	var nr = parseInt( _this.id.substring(4,_this.id.length) );
 	var x,y;
 	x= Math.floor( (nr-1)/_cols +1 ) ;
@@ -285,7 +293,12 @@ function mark_(_this)
 		_this.style.backgroundColor = culori[3];
 		use[x][y] = -1;
 	}else if(use[x][y] == -1){
+		_this.style.backgroundColor = "#fff8b0";
+		_this.innerText = "?";
+		use[x][y] = -2;
+	}else if(use[x][y] == -2){
 		_this.style.backgroundColor = culori[1];
+		_this.innerText = "";
 		use[x][y] = 0;
 	}
 	
@@ -298,7 +311,7 @@ function _LoadSquares(rows,cols)
 	var con = document.getElementById("ContentDiv");
 	var _width = parseInt(square_width) ;
 	var gincode = "class='w3-center sqr' onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)'   style='height:100%;background-color:"+'#2d65fb'+"'" ;
-	var gcode = "<div class=' w3-border w3-col' style='padding:5px ;width:"+_width+"px;height:"+_width+"px'><div "+gincode+" id='sqr_"; 
+	var gcode = "<div class=' w3-border w3-col' style='padding:2px ;width:"+_width+"px;height:"+_width+"px'><div "+gincode+" id='sqr_"; 
 	con.innerHTML = "";		
 	var tmp = "";
 	for(var i = rows ; i > 0; --i){
@@ -317,6 +330,7 @@ function putStiva(x,y,level){
 }
 
 function UNDO(){
+	if( bad() ) return;
 	if(stiva.length < 1 || rlevel <1) return;
 	var x,y,el,lev;
 	var lev2 = stiva[rlevel-1][2];
@@ -337,6 +351,7 @@ function UNDO(){
 
 function REDO()
 {
+	if( bad() ) return;
 	++rlevel;
 	if(   rlevel<1 || stiva.length<1 ) return;
 	if(   rlevel > stiva.length){ -- rlevel; return; }
@@ -364,6 +379,7 @@ function REDO()
 	--rlevel;
 }
 function REDOALL(){
+	if( bad() ) return;
 	while( rlevel < stiva.length ) REDO();
 }
 
@@ -385,6 +401,7 @@ function nrtoxy(nr,x,y){
 }
 
 function m_on(THIS){
+	if( bad() ) return;
 	var nr = parseInt( THIS.id.substring(4,THIS.id.length) );
 	var x,y;
 	x=cx[nr] ; y =cy[nr];
@@ -393,6 +410,7 @@ function m_on(THIS){
 }
 
 function m_out(THIS){
+	if( bad() ) return;
 	var nr = parseInt( THIS.id.substring(4,THIS.id.length) );
 	var x,y;
 	x=cx[nr] ; y =cy[nr];
@@ -433,4 +451,11 @@ function getCookie(cname) {
 }
 function DEBUG(tmp_){
 	debug.innerText += tmp_;
+}
+
+function w3_open() {
+    document.getElementsByClassName("w3-sidenav")[0].style.display = "block";
+}
+function w3_close() {
+    document.getElementsByClassName("w3-sidenav")[0].style.display = "none";
 }

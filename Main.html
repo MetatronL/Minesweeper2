@@ -9,9 +9,30 @@
 	
 	<body onload="loadcookies()" >
 		<script src="MyScripts.js"></script>
+		<nav class="w3-sidenav w3-white w3-card-2 w3-animate-left" style="display: none; width: 95%;  font-size: 15px; padding-top: 1%;">
+			<a href="javascript:void(0)" onclick="w3_close()" class="w3-closenav  w3-center w3-large w3-text-theme __web-inspector-hide-shortcut__">Close!</a>
+			<div style=""  > 
+				<!-- -->
+				
+			</div>
+			<br/>
+			<div>  
+				<!-- -->
+				<div>
+					<h4 class="w3-red w3-center">Debug-Info</h2>
+					<div id="demo">
+						
+					</div>
+				</div>
+				
+				
+			</div>
+		</nav>
 		<header class="w3-container w3-red w3-padding" >
+			<i onclick="w3_open()" class="w3-opennav" style="float:left;">Settings</i>
 			<div class="w3-center" >
-				<h4>
+				
+				<h4 >
 				Minesweeper
 				</h4>
 			</div>
@@ -31,6 +52,7 @@
 					<button id="bttn2" onclick="UNDO()" >UNDO</button>
 					<button id="bttn3" onclick="REDO()" >REDO</button>
 					<button id="bttn3" onclick="REDOALL()" >REDO ALL</button>
+					<div class="w3-center" id="game-info" > </div>
 					
 				</div>
 			</div>
@@ -39,7 +61,7 @@
 				
 				
 			</div>
-			<p id="demo"> </p>
+			<p id="demo_body"> </p>
 			
 		</div>
 		<script>
