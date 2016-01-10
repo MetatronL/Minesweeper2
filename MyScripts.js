@@ -53,18 +53,27 @@ function loadcookies()
  var testvar = 2;
  var _settings = [ ["Lose after a bomb is hit?" ,0 ,"AutoLose"]
 				,["TEST",0,"testvar"]
+				,["TEST",0,"testvar"]
+				,["TEST",0,"testvar"]
+				,["TEST",0,"testvar"]
+				,["TEST",0,"testvar"]
+				,["TEST",0,"testvar"]
+				,["TEST",0,"testvar"]
 				] ;
+var setcol = [ "#942828" , "#d21f1f" ];
  function LoadSettings(){
 	var i , len = _settings.length;
 	for(i=0;i<len;++i){
 		_settings[i][1] = window[_settings[i][2]];
-		DEBUG(_settings[i][1]);
+		/*DEBUG(_settings[i][1]);*/
 	}
 	var _last = $("#settings-point");
 	for(i=0;i<len;++i)
 	{
 		var code ;
-		code = $("<p>"+_settings[i][0]+"</p><div class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span>");
+		//code = $("<div class='w3-padding-medium' style='background-color:"+setcol[i%2]+"'><p>"+_settings[i][0]+"</p><div  class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span></div>");
+		code = $("<div class='w3-padding-medium' style='display: inline-block;background-color:"+setcol[i%2]+"'>"+_settings[i][0]+"<div class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span></label></div></div>");
+
 		$(_last).after(code); 
 	}
  }
@@ -72,11 +81,11 @@ function loadcookies()
  function _update(THIS){
 	var nr = THIS.id;
 	nr = parseInt( nr.substring(2,nr.length) );
-	DEBUG(THIS.checked);
+	//DEBUG(THIS.checked);
 	
-	_settings[nr][1] = (THIS.checked == true)?1:0
+	_settings[nr][1] = (THIS.checked == true)?1:0;
 	window[_settings[nr][2]] = _settings[nr][1];
-	DEBUG("Update: '"+_settings[nr][2]+"' : "+_settings[nr][1]);
+	DEBUG("Updated '"+_settings[nr][2]+"' to "+_settings[nr][1]);
 	
  }
  
@@ -363,6 +372,7 @@ function putStiva(x,y,level){
 function UNDO(){
 	if( bad() ) return;
 	if(stiva.length < 1 || rlevel <1) return;
+	DEBUG("Before 'Undo' Stack level is "+rlevel+" / "+stiva.length); 
 	var x,y,el,lev;
 	var lev2 = stiva[rlevel-1][2];
 	for(; 1 ;){
@@ -378,14 +388,17 @@ function UNDO(){
 		use[x][y] = 0;
 		--rlevel;
 	}
+	DEBUG("After  'Undo' Stack level is "+rlevel+" / "+stiva.length+"<br/>"); 
 }
 
 function REDO()
 {
+	
 	if( bad() ) return;
 	++rlevel;
 	if(   rlevel<1 || stiva.length<1 ) return;
 	if(   rlevel > stiva.length){ -- rlevel; return; }
+	DEBUG("Before 'Redo' Stack level is "+(rlevel-1)+" / "+stiva.length); 
 	var x,y,lev,lev2;
 	
 	lev2 = stiva[rlevel-1][2];
@@ -406,8 +419,9 @@ function REDO()
 		++rlevel;
 		if(rlevel > stiva.length)		break;
 	}
-	debug.textContent += " R:"+rlevel;
 	--rlevel;
+	DEBUG("After  'Redo' Stack level is "+rlevel+" / "+stiva.length+"<br/>"); 
+	
 }
 function REDOALL(){
 	if( bad() ) return;
