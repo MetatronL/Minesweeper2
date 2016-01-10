@@ -48,6 +48,8 @@ function loadcookies()
 	document.getElementById("input_cols").value = getCookie("cols");
 	document.getElementById("input_difi").value = getCookie("diff");
 	document.getElementById("input_pixels").value = getCookie("width");
+	
+	LoadSettings();
 }
  
  var testvar = 2;
@@ -192,7 +194,7 @@ function Generate()
 
 	
 	
-	LoadSettings();
+	
 }
 
 function _setEvents()
