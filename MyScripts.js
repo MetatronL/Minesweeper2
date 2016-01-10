@@ -74,7 +74,7 @@ var setcol = [ "#942828" , "#d21f1f" ];
 	{
 		var code ;
 		//code = $("<div class='w3-padding-medium' style='background-color:"+setcol[i%2]+"'><p>"+_settings[i][0]+"</p><div  class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span></div>");
-		code = $("<div class='w3-padding-medium' style='display: inline-block;background-color:"+setcol[i%2]+"'>"+_settings[i][0]+"<div class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span></label></div></div>");
+		code = $("<div  class='w3-padding-medium' style='font-size:12px;width:20%;display: inline-block;background-color:"+setcol[i%2]+"'>"+_settings[i][0]+"<div style='display: inline-block' class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span></label></div></div>");
 
 		$(_last).after(code); 
 	}
@@ -497,7 +497,7 @@ function getCookie(cname) {
     return "";
 }
 function DEBUG(tmp_){
-	debug.innerHTML+= tmp_ + "<br/>";
+	debug.innerHTML = tmp_ + "<br/>" + debug.innerHTML;
 	
 }
 
