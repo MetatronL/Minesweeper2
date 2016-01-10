@@ -50,6 +50,36 @@ function loadcookies()
 	document.getElementById("input_pixels").value = getCookie("width");
 }
  
+ var testvar = 2;
+ var _settings = [ ["Lose after a bomb is hit?" ,0 ,"AutoLose"]
+				,["TEST",0,"testvar"]
+				] ;
+ function LoadSettings(){
+	var i , len = _settings.length;
+	for(i=0;i<len;++i){
+		_settings[i][1] = window[_settings[i][2]];
+		DEBUG(_settings[i][1]);
+	}
+	var _last = $("#settings-point");
+	for(i=0;i<len;++i)
+	{
+		var code ;
+		code = $("<p>"+_settings[i][0]+"</p><div class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span>");
+		$(_last).after(code); 
+	}
+ }
+ 
+ function _update(THIS){
+	var nr = THIS.id;
+	nr = parseInt( nr.substring(2,nr.length) );
+	DEBUG(THIS.checked);
+	
+	_settings[nr][1] = (THIS.checked == true)?1:0
+	window[_settings[nr][2]] = _settings[nr][1];
+	DEBUG("Update: '"+_settings[nr][2]+"' : "+_settings[nr][1]);
+	
+ }
+ 
 function Generate()
 {
 
@@ -59,6 +89,7 @@ function Generate()
 	zero  = [];
 	bmb.length = 0;
 	Lost = 0;
+	document.getElementById("game-info").textContent = "";
 	
 	_rows = parseInt(document.getElementById("input_rows").value)    || 0;
 	_cols = parseInt(document.getElementById("input_cols").value)    || 0; 
@@ -149,10 +180,10 @@ function Generate()
 			_fillzero(i,j);
 		}
 	
-	var _a=2,_b=2,_c=2;
-	__xytonr(_a,_b,_c);
-	debug.innerText += _c;
+
 	
+	
+	LoadSettings();
 }
 
 function _setEvents()
@@ -213,7 +244,7 @@ function clicked(THIS)
 				document.getElementById("sqr_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4 ];
 				use[x][y] = 1;
 			}
-			document.getElementById("game-info").innerText = "GAME OVER!";
+			document.getElementById("game-info").textContent = "GAME OVER!";
 		}else{		
 			document.getElementById("sqr_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4];
 			use[x][y] = 1;
@@ -222,7 +253,7 @@ function clicked(THIS)
 	{
 		if(mat[x][y] >0 )
 		{
-			document.getElementById("sqr_"+nr).innerText = mat[x][y];
+			document.getElementById("sqr_"+nr).textContent = mat[x][y];
 			document.getElementById("sqr_"+nr).style.backgroundColor="#8ed379";
 			putStiva(x,y,level);
 			use[x][y] = 2;
@@ -240,7 +271,7 @@ function clicked(THIS)
 				putStiva(x,y,level);
 				nr = xytonr(x,y);
 				if(mat[x][y] )
-					document.getElementById("sqr_"+nr).innerText = mat[x][y];
+					document.getElementById("sqr_"+nr).textContent = mat[x][y];
 				document.getElementById("sqr_"+nr).style.backgroundColor="#8ed379";
 			}
 			
@@ -294,11 +325,11 @@ function mark_(_this)
 		use[x][y] = -1;
 	}else if(use[x][y] == -1){
 		_this.style.backgroundColor = "#fff8b0";
-		_this.innerText = "?";
+		_this.textContent = "?";
 		use[x][y] = -2;
 	}else if(use[x][y] == -2){
 		_this.style.backgroundColor = culori[1];
-		_this.innerText = "";
+		_this.textContent = "";
 		use[x][y] = 0;
 	}
 	
@@ -342,7 +373,7 @@ function UNDO(){
 		y   = stiva[rlevel-1][1];
 		nr = (x-1)*_cols + y; 
 		el = document.getElementById("sqr_" + nr);
-		el.innerText = "";
+		el.textContent = "";
 		el.style.backgroundColor="#2d65fb";
 		use[x][y] = 0;
 		--rlevel;
@@ -367,7 +398,7 @@ function REDO()
 		nr = (x-1)*_cols + y; 
 		
 		el = document.getElementById("sqr_" + nr);
-		if(mat[x][y]) el.innerText = mat[x][y];
+		if(mat[x][y]) el.textContent = mat[x][y];
 		el.style.backgroundColor="#8ed379";
 		
 		use[x][y] = 2;
@@ -375,7 +406,7 @@ function REDO()
 		++rlevel;
 		if(rlevel > stiva.length)		break;
 	}
-	debug.innerText += " R:"+rlevel;
+	debug.textContent += " R:"+rlevel;
 	--rlevel;
 }
 function REDOALL(){
@@ -450,7 +481,8 @@ function getCookie(cname) {
     return "";
 }
 function DEBUG(tmp_){
-	debug.innerText += tmp_;
+	debug.innerHTML+= tmp_ + "<br/>";
+	
 }
 
 function w3_open() {
