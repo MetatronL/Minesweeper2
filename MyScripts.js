@@ -48,19 +48,19 @@ function loadcookies()
 	document.getElementById("input_cols").value = getCookie("cols");
 	document.getElementById("input_difi").value = getCookie("diff");
 	document.getElementById("input_pixels").value = getCookie("width");
-	
+	debug = document.getElementById("demo");
 	LoadSettings();
 }
  
  var testvar = 2;
- var _settings = [ ["Lose after a bomb is hit?" ,0 ,"AutoLose"]
-				,["TEST",0,"testvar"]
-				,["TEST",0,"testvar"]
-				,["TEST",0,"testvar"]
-				,["TEST",0,"testvar"]
-				,["TEST",0,"testvar"]
-				,["TEST",0,"testvar"]
-				,["TEST",0,"testvar"]
+ var _settings = [ ["Lose after a bomb is hit?" ,0 ,"AutoLose",1]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
 				] ;
 var setcol = [ "#942828" , "#d21f1f" ];
  function LoadSettings(){
@@ -80,10 +80,17 @@ var setcol = [ "#942828" , "#d21f1f" ];
 	}
  }
  
+function open_set(THIS){
+	document.getElementById( '_' + THIS.id ).style.display = "block";
+}
+function close_set(THIS){
+	document.getElementById( '_' + THIS.id ).style.display = "none";
+} 
+ 
  function _update(THIS){
 	var nr = THIS.id;
 	nr = parseInt( nr.substring(2,nr.length) );
-	//DEBUG(THIS.checked);
+
 	
 	_settings[nr][1] = (THIS.checked == true)?1:0;
 	window[_settings[nr][2]] = _settings[nr][1];
@@ -499,6 +506,16 @@ function getCookie(cname) {
 function DEBUG(tmp_){
 	debug.innerHTML = tmp_ + "<br/>" + debug.innerHTML;
 	
+}
+
+function eraseCookie(name) {
+    setCookie(name,"",-1);
+}
+function delCookies(){
+	DEBUG("DELCOOKIES");
+	var cookies = document.cookie.split(";");
+	for (var i = 0; i < cookies.length; i++)
+  eraseCookie(cookies[i].split("=")[0]);
 }
 
 function w3_open() {
