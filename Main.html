@@ -7,7 +7,7 @@
 		<!-- END   HEAD -->
 	</head>
 	
-	<body onload="loadcookies()" >
+	<body onload="BodyLoaded()" >
 		<script src="MyScripts.js"></script>
 		<script src="https://code.jquery.com/jquery-2.2.0.js"></script>
 		
@@ -54,19 +54,23 @@
 		
 			<div> <!-- ControlPanel -->
 				<div class="w3-grey" style="padding:10px 0 10px 0;width:100%height:100%" >
-				
-					<input id="input_pixels" type="number" placeholder="Marime?def:50">
-					<input id="input_rows"   type="number" placeholder="Linii?">
-					<input id="input_cols"   type="number" placeholder="Coloane?">
-					<input id="input_difi"   type="number" placeholder="Dificultate 1-6">
+					<div class = 'w3-quarter w3-container '>
+					Size		<input id="input_width" class='t_input'  type="number" placeholder="def 50">
+					</div><div class = 'w3-quarter w3-container '>
+					Rows 		<input id="input_rows" class='t_input'    type="number" placeholder="5-20">
+					</div><div class = 'w3-quarter w3-container '>
+					Collumns   	<input id="input_cols" class='t_input'    type="number" placeholder="5-20">
+					</div><div class = 'w3-quarter w3-container '>
+					Difficulty	<input id="input_diff" class='t_input'  type="number" placeholder="1-6">
+					</div>
 					
-					<button id="bttn1" onclick="Generate()" >GO</button>
-					</br>
-					
+					<br/>
+					 
 					<button id="bttn2" onclick="UNDO()" >UNDO</button>
 					<button id="bttn3" onclick="REDO()" >REDO</button>
 					<button id="bttn3" onclick="REDOALL()" >REDO ALL</button>
-					
+					<button  style="width:15%;float:right;margin-right:5%" id="bttn1" onclick="Generate()" >START</button>
+					<br/>
 					<div class="w3-center" id="game-info" > </div>
 					
 				</div>

@@ -1,29 +1,23 @@
-var AutoLose =1,Lost=0;
+var AutoLose =1,square_width = 50 ;
+var zero = [],zer  = [],cx = [],cy = [],stiva = [],stare = [], use = [], mat = [],bmb=[];
+var Lost = 0 , debug , nrBombe = 0,x,y;
+var _rows = 0, _cols = 0,_diff = 0, _width;
+var level = 0,rlevel = 0;
 
-var square_width = 50 ;
-var _rows = 0;
-var _cols = 0;
-var _diff = 0;
-var wd;
-
-var stare = [] ;
 var raport = [ 0.1 , 0.2 , 0.25 , 0.3 , 0.35 , 0.55  ];
-var bmb= [];
-var mat = [];
-var use = [];
-var cx = [];
-var cy = [];
-var nrBombe = 0;
-var stiva = []; 
-var level = 0;
-var rlevel = 0;
-var debug ;
-var zero = [];
-var zer  = [];
-var ghj  = [];
-var culori = [ "#2d65fb" , "#0f2e83" , "#8ed379" , "#6f0038" , "#dd0a2b" , "#f66414" ];
-/* culori : 0.idle 1.idle_mouse_on 2.correct 3.checked_bomb 4.failed_bomb 5.correct_checked_bomb  */ 
-var def_zero_col;
+var setcol = [ "#942828" , "#d21f1f" ];
+var _colors = [ "#2d65fb" , "#0f2e83" , "#8ed379" , "#6f0038" , "#dd0a2b" , "#f66414" ,"#fff8b0"];
+/* _colors : 0.idle 1.idle_mouse_on 2.correct 3.checked_bomb 4.failed_bomb 5.correct_checked_bomb ,6. unknown */ 
+var _settings = [ ["Lose after a bomb is hit?" ,0 ,"AutoLose",1]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				,["TEST",0,"testvar",0]
+				] ;
+var testvar = 2;
 
 window.oncontextmenu = function (){return false;}
 
@@ -42,58 +36,56 @@ function createMatrix(mm)
 }
 
 
-function loadcookies()
-{
-	document.getElementById("input_rows").value = getCookie("rows");
-	document.getElementById("input_cols").value = getCookie("cols");
-	document.getElementById("input_difi").value = getCookie("diff");
-	document.getElementById("input_pixels").value = getCookie("width");
-	debug = document.getElementById("demo");
-	LoadSettings();
-}
- 
- var testvar = 2;
- var _settings = [ ["Lose after a bomb is hit?" ,0 ,"AutoLose",1]
-				,["TEST",0,"testvar",0]
-				,["TEST",0,"testvar",0]
-				,["TEST",0,"testvar",0]
-				,["TEST",0,"testvar",0]
-				,["TEST",0,"testvar",0]
-				,["TEST",0,"testvar",0]
-				,["TEST",0,"testvar",0]
-				] ;
-var setcol = [ "#942828" , "#d21f1f" ];
- function LoadSettings(){
-	var i , len = _settings.length;
-	for(i=0;i<len;++i){
-		_settings[i][1] = window[_settings[i][2]];
-		/*DEBUG(_settings[i][1]);*/
-	}
-	var _last = $("#settings-point");
-	for(i=0;i<len;++i)
-	{
-		var code ;
-		//code = $("<div class='w3-padding-medium' style='background-color:"+setcol[i%2]+"'><p>"+_settings[i][0]+"</p><div  class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span></div>");
-		code = $("<div  class='w3-padding-medium' style='font-size:12px;width:20%;display: inline-block;background-color:"+setcol[i%2]+"'>"+_settings[i][0]+"<div style='display: inline-block' class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' checked><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span></label></div></div>");
 
+function BodyLoaded()
+{
+	debug = document.getElementById("demo");
+	DEBUG("Initial Load Start");
+	
+	LoadCookies("_in_"		,function(c){ return parseInt(c)||0; });
+	LoadCookies("_setm_"	,function(c){ return c == "1"; }	  );
+	PreLoadTextInputs();
+	
+	var i ,code,_last = $("#settings-point"),len   = _settings.length ;
+	for(i=0;i<len;++i)
+		_settings[i][1] = window[_settings[i][2]];
+	for(i=0;i<len;++i){
+		code = $("<div  class='w3-padding-medium' style='font-size:12px;width:20%;display: inline-block;background-color:"+setcol[i%2]+"'>"+_settings[i][0]+"<div style='display: inline-block' class='onoffswitch'><input type='checkbox' name='onoffswitch' onclick='_update(this)' class='onoffswitch-checkbox' id='s_"+i+"' "+(window[_settings[i][2]]==1?"checked":"")+" ><label  class='onoffswitch-label' for='s_"+i+"'><span class='onoffswitch-inner'></span><span class='onoffswitch-switch'></span></label></div></div>");
 		$(_last).after(code); 
 	}
- }
- 
-function open_set(THIS){
-	document.getElementById( '_' + THIS.id ).style.display = "block";
+	DEBUG("Initial Load end");
 }
-function close_set(THIS){
-	document.getElementById( '_' + THIS.id ).style.display = "none";
-} 
- 
- function _update(THIS){
+function PreLoadTextInputs(){
+	var vec = document.getElementsByClassName("t_input");
+	var l = vec.length,cc;
+	for(var i=0;i<l;++i){
+		cc = vec[i].id; cc = cc.replace("input","");
+		vec[i].value = window[cc];
+		DEBUG(vec[i].id+" = "+vec[i].value);
+	}
+}
+function LoadCookies(pref,proc){
+    var ca = document.cookie.split(';') , c;
+    for(var i=0; i<ca.length; i++) {
+		c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+		c = c.split('=');
+        if (c[0].indexOf(pref) == 0) {
+            c[0] = c[0].replace(pref,"");
+			window[c[0]] = proc(c[1]);
+			DEBUG(c[0]+" = "+proc(c[1]));
+        }
+    }
+}
+
+function _update(THIS){
 	var nr = THIS.id;
 	nr = parseInt( nr.substring(2,nr.length) );
 
 	
 	_settings[nr][1] = (THIS.checked == true)?1:0;
 	window[_settings[nr][2]] = _settings[nr][1];
+	setCookie("_setm_" + _settings[nr][2] , _settings[nr][1] , 30  ); 
 	DEBUG("Updated '"+_settings[nr][2]+"' to "+_settings[nr][1]);
 	
  }
@@ -103,18 +95,17 @@ function Generate()
 
 	debug = document.getElementById("demo");
 	level = rlevel = 0;
-	stiva = [];
-	zero  = [];
-	bmb.length = 0;
-	Lost = 0;
+	stiva = []; 	zero  = [];
+	bmb.length = 0;  Lost = 0;
 	document.getElementById("game-info").textContent = "";
+	
 	
 	_rows = parseInt(document.getElementById("input_rows").value)    || 0;
 	_cols = parseInt(document.getElementById("input_cols").value)    || 0; 
-	_diff = parseInt(document.getElementById("input_difi").value)    || 0; 
-	wd    = parseInt(document.getElementById("input_pixels").value)  || 0;
+	_diff = parseInt(document.getElementById("input_diff").value)    || 0; 
+	_width= parseInt(document.getElementById("input_width").value)  || 0;
 	
-	if(wd>10 )square_width = wd;
+	if(_width<10 || _width>75 )_width = square_width;
 	
 	if( _rows < 5)  _rows = 5;
 	if( _rows > 20) _rows = 20;
@@ -131,7 +122,6 @@ function Generate()
 	cy.length = len+1;
 	nrBombe = Math.floor( (_rows * _cols) * raport[_diff-1] ) ;
 	
-	
 	createMatrix(mat);
 	createMatrix(use);
 	createMatrix(zer);
@@ -139,10 +129,10 @@ function Generate()
 	_LoadSquares(_rows,_cols);
 	_setEvents();
 	
-	setCookie("rows",_rows,30);
-	setCookie("cols",_cols,30);
-	setCookie("diff",_diff,30);
-	setCookie("width",wd,30);
+	setCookie("_in__rows" ,_rows,30);
+	setCookie("_in__cols" ,_cols,30);
+	setCookie("_in__diff" ,_diff,30);
+	setCookie("_in__width",_width,30);
 	
 	for(var i=1; i<stare.length; ++i) 
 		stare[i]=0;
@@ -155,35 +145,24 @@ function Generate()
 		}
 	}
 	
-	var x,y;
-	
-	
-	for(var i=1;i<=_rows;++i)
-	{
+	for(var i=1;i<=_rows;++i){
 		x = (i-1)*_cols ;
-		for(var j=1;j<=_cols;++j)
-		{
+		for(var j=1;j<=_cols;++j){
 			++x;
 			mat[i][j] = -stare[x];
-			if( stare[x] == 1 ){
+			if( stare[x] == 1 )
 				bmb.push( [i,j] );
-			}
 		}
 	}
-	
-	for(var i=1;i<=_rows;++i)
-	{
+	for(var i=1;i<=_rows;++i){
 		x = (i-1)*_cols;
-		for(var j=1;j<=_cols;++j)
-		{
+		for(var j=1;j<=_cols;++j){
 			++x;
 			cx[x]=i;
 			cy[x]=j;
 			if( (mat[i][j] != 0) ) 			continue;
-			for(var a=-1; a<2; ++a)
-			{
-				for(var b=-1;b<2;++b)
-				{
+			for(var a=-1; a<2; ++a){
+				for(var b=-1;b<2;++b){
 					if( a==0 && b == 0)				 continue;
 					if( mat[i+a][j+b] == -1 ) 
 						++mat[i][j];
@@ -197,11 +176,6 @@ function Generate()
 			if(mat[i][j] != 0 || zer[i][j]!=0 )	continue;
 			_fillzero(i,j);
 		}
-	
-
-	
-	
-	
 }
 
 function _setEvents()
@@ -209,21 +183,16 @@ function _setEvents()
 	var svec = document.getElementsByClassName("sqr");
 	var l = svec.length;
 	for(var i =0; i < l; ++i){
-		svec[i].addEventListener('click' ,  __clicked , false);
+		svec[i].addEventListener('click' , __clicked , false);
 	}
-	
 }
-function bad(){
-	if( AutoLose && Lost ) return true;
-	return false;
-}
+function bad(){ return AutoLose && Lost ; }
+
 
 function __clicked(e){
 	if( bad() ) return;
 	++level;
-	if( e.which ==1 ){
-		clicked(this);
-	}
+	if( e.which ==1 ){ 	clicked(this); }
 	else if( e.which == 2 ){
 		var x,y,nr,tmp;
 		nr = parseInt( this.id.substring(4,this.id.length) );
@@ -241,7 +210,6 @@ function __clicked(e){
 			}
 		}
 	}
-	
 }
 
 
@@ -259,12 +227,12 @@ function clicked(THIS)
 			for(var i=0; i < bmb.length; ++i){
 				x = bmb[i][0]; y = bmb[i][1];
 				nr = (x-1)*_cols+y;
-				document.getElementById("sqr_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4 ];
+				document.getElementById("sqr_"+nr).style.backgroundColor= _colors[use[x][y]==-1?5:4 ];
 				use[x][y] = 1;
 			}
 			document.getElementById("game-info").textContent = "GAME OVER!";
 		}else{		
-			document.getElementById("sqr_"+nr).style.backgroundColor= culori[use[x][y]==-1?5:4];
+			document.getElementById("sqr_"+nr).style.backgroundColor= _colors[use[x][y]==-1?5:4];
 			use[x][y] = 1;
 		}
 	}else
@@ -272,7 +240,7 @@ function clicked(THIS)
 		if(mat[x][y] >0 )
 		{
 			document.getElementById("sqr_"+nr).textContent = mat[x][y];
-			document.getElementById("sqr_"+nr).style.backgroundColor="#8ed379";
+			document.getElementById("sqr_"+nr).style.backgroundColor=_colors[2];
 			putStiva(x,y,level);
 			use[x][y] = 2;
 		}
@@ -290,7 +258,7 @@ function clicked(THIS)
 				nr = xytonr(x,y);
 				if(mat[x][y] )
 					document.getElementById("sqr_"+nr).textContent = mat[x][y];
-				document.getElementById("sqr_"+nr).style.backgroundColor="#8ed379";
+				document.getElementById("sqr_"+nr).style.backgroundColor=_colors[2];
 			}
 			
 		}
@@ -327,8 +295,6 @@ function _fillzero(l1,l2){
 }
 
 
-
-
 function mark_(_this)
 {
 	if( bad() ) return;
@@ -339,14 +305,14 @@ function mark_(_this)
 	if(y==0) y = _cols;
 	if( use[x][y] > 0 ) 		return;
 	if( use[x][y] ==0){
-		_this.style.backgroundColor = culori[3];
+		_this.style.backgroundColor = _colors[3];
 		use[x][y] = -1;
 	}else if(use[x][y] == -1){
-		_this.style.backgroundColor = "#fff8b0";
+		_this.style.backgroundColor = _colors[6];
 		_this.textContent = "?";
 		use[x][y] = -2;
 	}else if(use[x][y] == -2){
-		_this.style.backgroundColor = culori[1];
+		_this.style.backgroundColor = _colors[1];
 		_this.textContent = "";
 		use[x][y] = 0;
 	}
@@ -358,7 +324,6 @@ function mark_(_this)
 function _LoadSquares(rows,cols)
 {
 	var con = document.getElementById("ContentDiv");
-	var _width = parseInt(square_width) ;
 	var gincode = "class='w3-center sqr' onmouseover='m_on(this)' oncontextmenu='mark_(this)' onmouseout='m_out(this)'   style='height:100%;background-color:"+'#2d65fb'+"'" ;
 	var gcode = "<div class=' w3-border w3-col' style='padding:2px ;width:"+_width+"px;height:"+_width+"px'><div "+gincode+" id='sqr_"; 
 	con.innerHTML = "";		
@@ -393,7 +358,7 @@ function UNDO(){
 		nr = (x-1)*_cols + y; 
 		el = document.getElementById("sqr_" + nr);
 		el.textContent = "";
-		el.style.backgroundColor="#2d65fb";
+		el.style.backgroundColor=_colors[0];
 		use[x][y] = 0;
 		--rlevel;
 	}
@@ -460,7 +425,7 @@ function m_on(THIS){
 	var x,y;
 	x=cx[nr] ; y =cy[nr];
 	if(use[x][y] != 0 ) return;
-	THIS.style.backgroundColor = culori[1];
+	THIS.style.backgroundColor = _colors[1];
 }
 
 function m_out(THIS){
@@ -469,7 +434,7 @@ function m_out(THIS){
 	var x,y;
 	x=cx[nr] ; y =cy[nr];
 	if(use[x][y] != 0 ) return;
-	THIS.style.backgroundColor = culori[0];
+	THIS.style.backgroundColor = _colors[0];
 }
 
 
@@ -524,3 +489,10 @@ function w3_open() {
 function w3_close() {
     document.getElementsByClassName("w3-sidenav")[0].style.display = "none";
 }
+
+function open_set(THIS){
+	document.getElementById( '_' + THIS.id ).style.display = "block";
+}
+function close_set(THIS){
+	document.getElementById( '_' + THIS.id ).style.display = "none";
+} 
